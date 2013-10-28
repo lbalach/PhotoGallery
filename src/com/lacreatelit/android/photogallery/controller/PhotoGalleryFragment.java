@@ -2,8 +2,10 @@ package com.lacreatelit.android.photogallery.controller;
 
 import java.util.ArrayList;
 
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,7 +39,18 @@ public class PhotoGalleryFragment extends Fragment {
 		new FetchRemoteDataTask().execute();
 		
 		//Setup the background thread to download the thumbnails
-		mThumbnailThread = new ThumbnailDownloadThread<ImageView>();
+		mThumbnailThread = new ThumbnailDownloadThread<ImageView>(new Handler());
+		mThumbnailThread.setThumbnailDownloadCompleteListener(
+				new ThumbnailDownloadThread.Listener<ImageView>() {
+			public void onThumbnailDownloaded(ImageView imageView, 
+					Bitmap thumbnail) {
+				if(isVisible()) {
+					imageView.setImageBitmap(thumbnail);
+				}
+			}
+					
+		});
+		
 		mThumbnailThread.start();
 		mThumbnailThread.getLooper();
 		Log.i(TAG, "Background thread started...");
@@ -144,7 +157,12 @@ public class PhotoGalleryFragment extends Fragment {
 		mThumbnailThread.quit();
 		Log.i(TAG, "Background thread destroyed");
 	}
-	
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		mThumbnailThread.clearQueueData();
+	}
 	
 
 }

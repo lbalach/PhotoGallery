@@ -12,6 +12,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
+import android.widget.ImageView;
+
 
 import com.lacreatelit.android.photogallery.controller.PhotoFetcher;
 
@@ -24,9 +26,19 @@ public class ThumbnailDownloadThread<Token> extends HandlerThread {
 	Map<Token, String> mUrlToTokenMap = 
 			Collections.synchronizedMap(new HashMap<Token, String>());
 	
-	public ThumbnailDownloadThread() {
+	Handler mCallerThreadHandler;
+	Listener<Token> mThumbnailDownloadCompleteListener;
+	
+	
+	public interface Listener<Token> {
+		
+		void onThumbnailDownloaded(Token token, Bitmap thumbnail);
+	}
+	
+	public ThumbnailDownloadThread(Handler callerThreadHandler) {
 		
 		super(TAG);
+		mCallerThreadHandler = callerThreadHandler;
 		
 	}
 	
@@ -72,21 +84,54 @@ public class ThumbnailDownloadThread<Token> extends HandlerThread {
 	
 	private void handleRequest(final Token token) {
 		try{
+			
 			final String url = mUrlToTokenMap.get(token);
 			
 			if(url == null) {
-				Log.i(TAG, "Got null url");
+				Log.i(TAG, "Got null url from view");
 				return;
 			}
+			
 			
 			byte[] bitmapBytes = new PhotoFetcher().getURLBytes(url);
 			final Bitmap bitmap = BitmapFactory
 					.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
 			Log.i(TAG, "Bitmap created");
 			
+			mCallerThreadHandler.post(new Runnable() {
+				public void run() {
+					
+					if(mUrlToTokenMap.get(token) != url) {
+						Log.i(TAG, "url does not match view");
+						return;
+					}
+					
+					mUrlToTokenMap.remove(token);
+					
+					mThumbnailDownloadCompleteListener
+						.onThumbnailDownloaded(token, bitmap);
+				}
+			});
+			
 		} catch (IOException e) {
+			
 			Log.e(TAG, "Error creating image", e);
+			
 		}
+	}
+
+	public void setThumbnailDownloadCompleteListener(
+			Listener<Token> thumbnailDownloadCompleteListener) {
+		
+		mThumbnailDownloadCompleteListener = thumbnailDownloadCompleteListener;
+		
+	}
+
+	public void clearQueueData() {
+		
+		mHandler.removeMessages(MESSAGE_DOWNLOAD);
+		mUrlToTokenMap.clear();
+		
 	}
 	
 }
