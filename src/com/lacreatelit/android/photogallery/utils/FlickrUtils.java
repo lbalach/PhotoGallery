@@ -14,7 +14,7 @@ import android.util.Log;
 
 import com.lacreatelit.android.photogallery.model.GalleryItem;
 
-public class Utils {
+public class FlickrUtils {
 	
 	private static final String TAG = "Utils";
 	
@@ -25,22 +25,28 @@ public class Utils {
 	private static final String URL_API_KEY 
 						= "ca54b7c5de953a302537548721ea9d3b";
 	
+	// Methods called on the Flickr API's
 	private static final String URL_PARAMS_METHOD = "method";
-	private static final String URL_METHOD_GET_RECENT 
+	private static final String URL_METHOD_GET_RECENT_PHOTOS 
 						= "flickr.photos.getRecent";
+	private static final String URL_METHOD_SEARCH_PHOTOS
+						= "flickr.photos.search";
 	
-	
+	// Parameters to the methods called on the Flickr API's
 	private static final String URL_PARAM_EXTRAS = "extras";
 	private static final String URL_EXTRA_SMALL_URL = "url_s";
+	private static final String URL_PARAM_TEXT = "text";
 	
+	// XML tags in the returned result photo xml's from Flickr
 	private static final String XML_PHOTO_TAG = "photo";
 	private static final String XML_ATTR_ID = "id";
 	private static final String XML_ATTR_TITLE = "title";
 	
-	public static String createURL() {
+	public static String createRecentPhotosURL() {
 		
 		String url = Uri.parse(URL_ENDPOINT).buildUpon()
-				.appendQueryParameter(URL_PARAMS_METHOD, URL_METHOD_GET_RECENT)
+				.appendQueryParameter(URL_PARAMS_METHOD, 
+						URL_METHOD_GET_RECENT_PHOTOS)
 				.appendQueryParameter(URL_PARAMS_API_KEY, URL_API_KEY)
 				.appendQueryParameter(URL_PARAM_EXTRAS, URL_EXTRA_SMALL_URL)
 				.build().toString();
@@ -49,7 +55,21 @@ public class Utils {
 		
 	}
 	
-	public static void createtPhotoList(ArrayList<GalleryItem> photoList
+	public static String createSearchPhotosURL(String query) {
+		
+		String url = Uri.parse(URL_ENDPOINT)
+				.buildUpon()
+				.appendQueryParameter(URL_PARAMS_METHOD, 
+						URL_METHOD_SEARCH_PHOTOS)
+				.appendQueryParameter(URL_PARAMS_API_KEY, URL_API_KEY)
+				.appendQueryParameter(URL_PARAM_EXTRAS, URL_EXTRA_SMALL_URL)
+				.appendQueryParameter(URL_PARAM_TEXT, query)
+				.build().toString();
+		
+		return url;
+	}
+	
+	public static void createPhotoList(ArrayList<GalleryItem> photoList
 			, String xmlString)  {
 		
 		try{

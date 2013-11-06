@@ -8,7 +8,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import com.lacreatelit.android.photogallery.model.GalleryItem;
-import com.lacreatelit.android.photogallery.utils.Utils;
+import com.lacreatelit.android.photogallery.utils.FlickrUtils;
 
 import android.util.Log;
 
@@ -53,17 +53,25 @@ public class PhotoFetcher {
 		
 	}
 	
+	@SuppressWarnings("unused")
 	public ArrayList<GalleryItem> getPhotoList() {
 		
 		ArrayList<GalleryItem> photoList = null;
+		String photoUrl = null;
+		String query = "android";
 		try {
 			
-			String photoUrl = Utils.createURL();
+			if(query != null) {
+				photoUrl = FlickrUtils.createSearchPhotosURL(query);
+			} else {
+				photoUrl = FlickrUtils.createRecentPhotosURL();
+			}
+			
 			String xmlPhotoData = getUrlData(photoUrl);
 			Log.d(TAG, "Recieved xml: " + xmlPhotoData);
 			
 			photoList = new ArrayList<GalleryItem>();
-			Utils.createtPhotoList(photoList, xmlPhotoData);
+			FlickrUtils.createPhotoList(photoList, xmlPhotoData);
 			
 		} catch (IOException e) {
 			Log.e(TAG, "Failed to get photo list", e);
