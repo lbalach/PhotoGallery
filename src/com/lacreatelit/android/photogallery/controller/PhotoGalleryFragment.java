@@ -2,13 +2,18 @@ package com.lacreatelit.android.photogallery.controller;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -17,6 +22,7 @@ import android.widget.ImageView;
 
 import com.lacreatelit.android.photogallery.R;
 import com.lacreatelit.android.photogallery.model.GalleryItem;
+import com.lacreatelit.android.photogallery.utils.FlickrUtils;
 import com.lacreatelit.android.photogallery.utils.ThumbnailDownloadThread;
 
 public class PhotoGalleryFragment extends Fragment {
@@ -34,9 +40,10 @@ public class PhotoGalleryFragment extends Fragment {
 		// Retain the Fragment even when the configuration changes. So even when
 		// the underlying Activity is destroyed, the Fragment is retained
 		setRetainInstance(true);
+		setHasOptionsMenu(true);
 		
-		// Execute the AsyncTask
-		new FetchRemoteDataTask().execute();
+		// Get the list of 
+		updatePhotoList();
 		
 		//Setup the background thread to download the thumbnails
 		mThumbnailThread = new ThumbnailDownloadThread<ImageView>(new Handler());
@@ -93,6 +100,13 @@ public class PhotoGalleryFragment extends Fragment {
  		
 	}
 	
+	
+	public void updatePhotoList() {
+		
+		new FetchRemoteDataTask().execute();
+		
+	}
+	
 	private class FetchRemoteDataTask extends AsyncTask<Void, Void, 
 				ArrayList<GalleryItem>> {
 
@@ -107,8 +121,11 @@ public class PhotoGalleryFragment extends Fragment {
 //				
 //				Log.e(TAG, "Failed to fetch URL", e);
 //			}
+			Activity activity = getActivity();
+			if(activity == null)
+				return new ArrayList<GalleryItem>();
 			
-			return new PhotoFetcher().getPhotoList();
+			return new PhotoFetcher().getPhotoList(activity);
 			
 		} // End of function definition
 
@@ -163,6 +180,44 @@ public class PhotoGalleryFragment extends Fragment {
 		super.onDestroyView();
 		mThumbnailThread.clearQueueData();
 	}
+
+	
+	//==================Creating the options menu===============================
+	
+	// Specifies which menu layout to inflate
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.fragment_photo_gallery, menu);
+		
+	}
+
+	// Specify what actions need to be taken once the item has been selected
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		
+		switch(item.getItemId()) {
+		
+		case R.id.menu_item_search:
+			getActivity().onSearchRequested();
+			return true;
+			
+		case R.id.menu_item_clear:
+			PreferenceManager.getDefaultSharedPreferences(getActivity())
+				.edit()
+				.putString(FlickrUtils.PREF_KEY_SEARCH_QUERY, null)
+				.commit();
+			updatePhotoList();
+			return true;
+			
+		default:
+			return super.onOptionsItemSelected(item);
+			
+		}
+		
+	}
+	
 	
 
 }

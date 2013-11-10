@@ -7,10 +7,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+import android.content.Context;
+import android.preference.PreferenceManager;
+import android.util.Log;
+
 import com.lacreatelit.android.photogallery.model.GalleryItem;
 import com.lacreatelit.android.photogallery.utils.FlickrUtils;
-
-import android.util.Log;
 
 public class PhotoFetcher {
 	
@@ -54,11 +56,12 @@ public class PhotoFetcher {
 	}
 	
 	@SuppressWarnings("unused")
-	public ArrayList<GalleryItem> getPhotoList() {
+	public ArrayList<GalleryItem> getPhotoList(Context context) {
 		
 		ArrayList<GalleryItem> photoList = null;
 		String photoUrl = null;
-		String query = "android";
+		
+		String query = retrieveSearchQuery(context);
 		try {
 			
 			if(query != null) {
@@ -79,6 +82,12 @@ public class PhotoFetcher {
 		}
 		
 		return photoList;
+	}
+	
+	private String retrieveSearchQuery(Context context) {
+		
+		return PreferenceManager.getDefaultSharedPreferences(context)
+				.getString(FlickrUtils.PREF_KEY_SEARCH_QUERY, null);
 	}
 
 }

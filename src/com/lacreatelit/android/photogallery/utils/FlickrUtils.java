@@ -16,6 +16,8 @@ import com.lacreatelit.android.photogallery.model.GalleryItem;
 
 public class FlickrUtils {
 	
+	public static final String PREF_KEY_SEARCH_QUERY = "searchQuery";
+	
 	private static final String TAG = "Utils";
 	
 	private static final String URL_ENDPOINT 

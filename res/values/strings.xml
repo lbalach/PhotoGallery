@@ -4,5 +4,8 @@
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_phot_gallery">PhotGalleryActivity</string>
+    <string name="search_hint">Image search</string>
+    <string name="search">Search</string>
+    <string name="clear_search">Clear Search</string>
 
 </resources>
