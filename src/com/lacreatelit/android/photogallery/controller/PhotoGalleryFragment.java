@@ -2,9 +2,15 @@ package com.lacreatelit.android.photogallery.controller;
 
 import java.util.ArrayList;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.SearchManager;
+import android.app.SearchableInfo;
+import android.content.ComponentName;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -19,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.SearchView;
 
 import com.lacreatelit.android.photogallery.R;
 import com.lacreatelit.android.photogallery.model.GalleryItem;
@@ -186,10 +193,31 @@ public class PhotoGalleryFragment extends Fragment {
 	
 	// Specifies which menu layout to inflate
 	@Override
+	@TargetApi(11)
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.fragment_photo_gallery, menu);
+		
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			
+			Log.i(TAG, "Using the post HoneyComb SearchView mechanism");
+			// Get data about the search configuration (Searchable.xml) as 
+			// SearchableInfo
+			SearchManager searchManager = (SearchManager)getActivity()
+					.getSystemService(Context.SEARCH_SERVICE);
+			ComponentName componentName = getActivity().getComponentName();
+			SearchableInfo searchInfo = searchManager
+					.getSearchableInfo(componentName);
+			
+			// Get the SearchView
+			MenuItem menuSearchItem = menu.findItem(R.id.menu_item_search);
+			SearchView searchView = (SearchView)menuSearchItem.getActionView();
+			
+			// Set the search configuration for the SearchView
+			searchView.setSearchableInfo(searchInfo);
+			
+		}
 		
 	}
 
