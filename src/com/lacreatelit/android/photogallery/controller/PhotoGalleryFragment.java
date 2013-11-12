@@ -8,6 +8,7 @@ import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -29,6 +30,7 @@ import android.widget.SearchView;
 
 import com.lacreatelit.android.photogallery.R;
 import com.lacreatelit.android.photogallery.model.GalleryItem;
+import com.lacreatelit.android.photogallery.services.SearchPollService;
 import com.lacreatelit.android.photogallery.utils.FlickrUtils;
 import com.lacreatelit.android.photogallery.utils.ThumbnailDownloadThread;
 
@@ -49,11 +51,15 @@ public class PhotoGalleryFragment extends Fragment {
 		setRetainInstance(true);
 		setHasOptionsMenu(true);
 		
-		// Get the list of 
+		// Get the list of photos to be displayed
 		updatePhotoList();
+		
+		Intent intent = new Intent(getActivity(), SearchPollService.class);
+		getActivity().startService(intent);
 		
 		//Setup the background thread to download the thumbnails
 		mThumbnailThread = new ThumbnailDownloadThread<ImageView>(new Handler());
+		
 		mThumbnailThread.setThumbnailDownloadCompleteListener(
 				new ThumbnailDownloadThread.Listener<ImageView>() {
 			public void onThumbnailDownloaded(ImageView imageView, 
