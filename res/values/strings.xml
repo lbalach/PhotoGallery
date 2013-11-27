@@ -7,5 +7,9 @@
     <string name="search_hint">Image search</string>
     <string name="search">Search</string>
     <string name="clear_search">Clear Search</string>
+    <string name="start_polling">Look for new pictures</string>
+    <string name="stop_polling">Stop looking</string>
+    <string name="new_pictures_title">New pictures in PhotoGallery</string>
+    <string name="new_pictures_text">You have new pictures in PhotoGallery</string>
 
 </resources>

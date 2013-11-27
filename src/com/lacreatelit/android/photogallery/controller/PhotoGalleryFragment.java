@@ -54,8 +54,8 @@ public class PhotoGalleryFragment extends Fragment {
 		// Get the list of photos to be displayed
 		updatePhotoList();
 		
-		Intent intent = new Intent(getActivity(), SearchPollService.class);
-		getActivity().startService(intent);
+		// Set up the Search polling service
+		//SearchPollService.setServiceAlarm(getActivity(), true);
 		
 		//Setup the background thread to download the thumbnails
 		mThumbnailThread = new ThumbnailDownloadThread<ImageView>(new Handler());
@@ -245,9 +245,35 @@ public class PhotoGalleryFragment extends Fragment {
 			updatePhotoList();
 			return true;
 			
+		case R.id.menu_item_new_photo_polling:
+			boolean isStartAlarm = !SearchPollService
+				.isServiceAlarmOn(getActivity());
+			SearchPollService.setServiceAlarm(getActivity(), isStartAlarm);
+			
+			if(!isStartAlarm) 
+				updatePhotoList();
+			
+			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+				getActivity().invalidateOptionsMenu();
+			}
+			
 		default:
 			return super.onOptionsItemSelected(item);
 			
+		}
+		
+	}
+
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		
+		super.onPrepareOptionsMenu(menu);
+		MenuItem photoPollToggleMenu = menu
+				.findItem(R.id.menu_item_new_photo_polling);
+		if(SearchPollService.isServiceAlarmOn(getActivity())) {
+			photoPollToggleMenu.setTitle(R.string.stop_polling);
+		} else {
+			photoPollToggleMenu.setTitle(R.string.start_polling);
 		}
 		
 	}

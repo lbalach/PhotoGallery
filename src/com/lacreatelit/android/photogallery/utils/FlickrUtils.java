@@ -17,6 +17,7 @@ import com.lacreatelit.android.photogallery.model.GalleryItem;
 public class FlickrUtils {
 	
 	public static final String PREF_KEY_SEARCH_QUERY = "searchQuery";
+	public static final String PREF_KEY_LAST_RESULT_ID = "lastResultId";
 	
 	private static final String TAG = "Utils";
 	
@@ -119,8 +120,6 @@ public class FlickrUtils {
 			
 		} // End of while loop
 		
-	}
-	
-	
+	}	
 
 }

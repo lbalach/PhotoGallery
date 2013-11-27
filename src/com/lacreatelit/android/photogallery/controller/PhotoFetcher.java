@@ -84,10 +84,25 @@ public class PhotoFetcher {
 		return photoList;
 	}
 	
-	private String retrieveSearchQuery(Context context) {
+	public String retrieveSearchQuery(Context context) {
 		
 		return PreferenceManager.getDefaultSharedPreferences(context)
 				.getString(FlickrUtils.PREF_KEY_SEARCH_QUERY, null);
+	}
+	
+	public String retrieveLastResultId(Context context) {
+		
+		return PreferenceManager.getDefaultSharedPreferences(context)
+				.getString(FlickrUtils.PREF_KEY_LAST_RESULT_ID, null);
+	}
+	
+	public void saveResultId(Context context, String resultId) {
+		
+		PreferenceManager.getDefaultSharedPreferences(context)
+			.edit()
+			.putString(FlickrUtils.PREF_KEY_LAST_RESULT_ID, resultId)
+			.commit();
+		
 	}
 
 }
