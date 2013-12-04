@@ -4,19 +4,37 @@ import java.util.ArrayList;
 
 import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
+import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.lacreatelit.android.photogallery.R;
 import com.lacreatelit.android.photogallery.controller.PhotoFetcher;
+import com.lacreatelit.android.photogallery.controller.PhotoGalleryActivity;
 import com.lacreatelit.android.photogallery.model.GalleryItem;
 
 public class SearchPollService extends IntentService {
 	
 	private static final String TAG = "SearchPollService";
-	private static final int ALARM_REPEAT_INTERVAL = 1000 * 15; // 15 seconds
+	private static final int ALARM_REPEAT_INTERVAL = 1000 * 60 * 5; // 5 minutes
+	
+	public static final String PREF_IS_ALARM_ON = "isAlarmOn";
+	
+	// Actions to be broadcast
+	public static final String ACTION_SHOW_NOTIFICATION = 
+			"com.lacreatelit.android.photogallery.SHOW_NOTIFICATION";
+	
+	// Permission used by the Service
+	public static final String PERMISSION_PRIVATE_SHOW_NOTIFICATION = 
+			"com.lacreatelit.android.photogallery.PRIVATE_SHOW_NOTIFICATION";
+	
 	
 	public SearchPollService(){
 		
@@ -43,8 +61,16 @@ public class SearchPollService extends IntentService {
 		String latestResultId = photoList.get(0).getId();
 		
 		if(!latestResultId.equals(lastResultId)){
+
 			Log.i(TAG, "Got a new result set");
+			
+			publishNewResultNotification();
+			
+			sendBroadcast(new Intent(ACTION_SHOW_NOTIFICATION), 
+					PERMISSION_PRIVATE_SHOW_NOTIFICATION);
+			
 		} else {
+			
 			Log.i(TAG, "Got old result set");
 		}
 		
@@ -79,6 +105,7 @@ public class SearchPollService extends IntentService {
 		
 		
 		if(isOn) {
+			
 			alarmManager.setRepeating(AlarmManager.RTC, 
 					System.currentTimeMillis(),
 					ALARM_REPEAT_INTERVAL, 
@@ -88,6 +115,12 @@ public class SearchPollService extends IntentService {
 			alarmManager.cancel(pendingIntent);
 			pendingIntent.cancel();
 		}
+		
+		// Save the current alarm state
+		PreferenceManager.getDefaultSharedPreferences(context)
+			.edit()
+			.putBoolean(PREF_IS_ALARM_ON, isOn)
+			.commit();
 		
 	}
 	
@@ -103,6 +136,28 @@ public class SearchPollService extends IntentService {
 				.getService(context, 0, intent, PendingIntent.FLAG_NO_CREATE);
 		
 		return (pendingIntent != null);
+	}
+	
+	private void publishNewResultNotification() {
+		
+		Resources resources = getResources();
+		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, 
+				new Intent(this, PhotoGalleryActivity.class), 0);
+		
+		Notification notification = new NotificationCompat.Builder(this)
+			.setTicker(resources.getString(R.string.new_pictures_title))
+			.setSmallIcon(android.R.drawable.ic_menu_report_image)
+			.setContentTitle(resources.getString(R.string.new_pictures_title))
+			.setContentText(resources.getString(R.string.new_pictures_text))
+			.setContentIntent(pendingIntent)
+			.setAutoCancel(true)
+			.build();
+		
+		NotificationManager notificationManager = (NotificationManager)
+				getSystemService(NOTIFICATION_SERVICE);
+		
+		notificationManager.notify(0, notification);
+		
 	}
 
 }

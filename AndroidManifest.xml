@@ -6,29 +6,52 @@
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="15" />
+
+    <permission 
+        android:name
+        	="com.lacreatelit.android.photogallery.PRIVATE_SHOW_NOTIFICATION" 
+        android:protectionLevel="signature" />
+    
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission 
+        android:name
+        	="com.lacreatelit.android.photogallery.PRIVATE_SHOW_NOTIFICATION"/>
 
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        
         <activity
             android:name=".controller.PhotoGalleryActivity"
             android:launchMode="singleTop"
             android:label="@string/title_activity_phot_gallery" >
+            
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH"/>
             </intent-filter>
+            
             <meta-data android:name="android.app.searchable"
                 android:resource="@xml/searchable"/>
+            
         </activity>
+        
         <service android:name=".services.SearchPollService" />
+        
+        <receiver android:name=".broadcastreceivers.BootupReceiver">
+        	<intent-filter >
+        	    <action android:name="android.intent.action.BOOT_COMPLETED" />
+        	</intent-filter>    
+        </receiver>
+        
+        
     </application>
 
 </manifest>

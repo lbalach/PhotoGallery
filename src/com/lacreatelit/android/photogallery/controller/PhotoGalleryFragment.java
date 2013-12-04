@@ -34,7 +34,7 @@ import com.lacreatelit.android.photogallery.services.SearchPollService;
 import com.lacreatelit.android.photogallery.utils.FlickrUtils;
 import com.lacreatelit.android.photogallery.utils.ThumbnailDownloadThread;
 
-public class PhotoGalleryFragment extends Fragment {
+public class PhotoGalleryFragment extends AbstractParentFragment {
 	
 	private static final String TAG = "PhotoGalleryFragment";
 	
