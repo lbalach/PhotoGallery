@@ -2,6 +2,7 @@ package com.lacreatelit.android.photogallery.services;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.Notification;
@@ -23,8 +24,8 @@ import com.lacreatelit.android.photogallery.model.GalleryItem;
 public class SearchPollService extends IntentService {
 	
 	private static final String TAG = "SearchPollService";
-	private static final int ALARM_REPEAT_INTERVAL = 1000 * 60 * 5; // 5 minutes
-	
+	//private static final int ALARM_REPEAT_INTERVAL = 1000 * 60 * 5; // 5 minutes
+	private static final int ALARM_REPEAT_INTERVAL = 1000 * 5; // 5 seconds
 	public static final String PREF_IS_ALARM_ON = "isAlarmOn";
 	
 	// Actions to be broadcast
@@ -34,6 +35,16 @@ public class SearchPollService extends IntentService {
 	// Permission used by the Service
 	public static final String PERMISSION_PRIVATE_SHOW_NOTIFICATION = 
 			"com.lacreatelit.android.photogallery.PRIVATE_SHOW_NOTIFICATION";
+	
+	// Intent extra keys
+	public static final String INTENT_EXTRA_KEY_NEW_PHOTO_REQUEST = 
+			"newPhotoRequest";
+	public static final String INTENT_EXTRA_KEY_PHOTO_NOTIFICATION = 
+			"photoNotification";
+	
+	// Intent extra values
+	public static final int INTENT_EXTRA_VALUE_NEW_PHOTO_REQUEST = 0;
+	
 	
 	
 	public SearchPollService(){
@@ -64,10 +75,7 @@ public class SearchPollService extends IntentService {
 
 			Log.i(TAG, "Got a new result set");
 			
-			publishNewResultNotification();
-			
-			sendBroadcast(new Intent(ACTION_SHOW_NOTIFICATION), 
-					PERMISSION_PRIVATE_SHOW_NOTIFICATION);
+			showBackgroundNotification();
 			
 		} else {
 			
@@ -138,8 +146,20 @@ public class SearchPollService extends IntentService {
 		return (pendingIntent != null);
 	}
 	
+	@SuppressWarnings("unused")
 	private void publishNewResultNotification() {
 		
+		Notification notification = createNewPhotosNotification();
+		
+		NotificationManager notificationManager = (NotificationManager)
+				getSystemService(NOTIFICATION_SERVICE);
+		
+		notificationManager.notify(0, notification);
+		
+	}
+	
+	private Notification createNewPhotosNotification() {
+
 		Resources resources = getResources();
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, 
 				new Intent(this, PhotoGalleryActivity.class), 0);
@@ -153,11 +173,25 @@ public class SearchPollService extends IntentService {
 			.setAutoCancel(true)
 			.build();
 		
-		NotificationManager notificationManager = (NotificationManager)
-				getSystemService(NOTIFICATION_SERVICE);
-		
-		notificationManager.notify(0, notification);
+		return notification;
 		
 	}
+	
+	private void showBackgroundNotification() {
+		
+		Intent intent = new Intent(ACTION_SHOW_NOTIFICATION);
+		intent.putExtra(INTENT_EXTRA_KEY_NEW_PHOTO_REQUEST, 
+				INTENT_EXTRA_VALUE_NEW_PHOTO_REQUEST);
+		
+		Notification notification = createNewPhotosNotification();
+		intent.putExtra(INTENT_EXTRA_KEY_PHOTO_NOTIFICATION, notification);
+		
+		sendOrderedBroadcast(intent, 
+				PERMISSION_PRIVATE_SHOW_NOTIFICATION,
+				null, null, Activity.RESULT_OK, null, null);
+		
+	}
+	
+	
 
 }

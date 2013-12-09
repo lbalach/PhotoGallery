@@ -51,6 +51,13 @@
         	</intent-filter>    
         </receiver>
         
+        <receiver android:name=".broadcastreceivers.NewPhotoNotificationReceiver"
+            android:exported="false">
+        	<intent-filter android:priority="-999">
+        	    <action android:name="com.lacreatelit.android.photogallery.SHOW_NOTIFICATION" />
+        	</intent-filter>
+        </receiver>
+        
         
     </application>
 

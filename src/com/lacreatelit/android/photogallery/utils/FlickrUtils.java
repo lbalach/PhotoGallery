@@ -44,6 +44,7 @@ public class FlickrUtils {
 	private static final String XML_PHOTO_TAG = "photo";
 	private static final String XML_ATTR_ID = "id";
 	private static final String XML_ATTR_TITLE = "title";
+	private static final String XML_ATTR_OWNER = "owner";
 	
 	public static String createRecentPhotosURL() {
 		
@@ -106,11 +107,14 @@ public class FlickrUtils {
 						,XML_ATTR_TITLE);
 				String smallUrl = xmlPullParser.getAttributeValue(null
 						, URL_EXTRA_SMALL_URL);
+				String owner = xmlPullParser.getAttributeValue(null,
+						XML_ATTR_OWNER);
 				
 				GalleryItem galleryItem = new GalleryItem();
 				galleryItem.setId(id);
 				galleryItem.setCaption(caption);
 				galleryItem.setUrl(smallUrl);
+				galleryItem.setOwner(owner);
 				
 				photoList.add(galleryItem);
 				
